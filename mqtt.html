@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #f7e6ca;
+      background-image: url('http://localhost/Danny_gif.gif');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+  </style>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+  <script>
+    const options = {
+      protocol: 'wss',
+      port: 8084,
+      username: 'Danny',
+      password: 'Danny',
+      clientId: 'app_' + Math.random().toString(16).substr(2, 8),
+      clean: true,
+      connectTimeout: 4000,
+      reconnectPeriod: 2000
+    };
+
+    const client = mqtt.connect('wss://zef210ef.ala.eu-central-1.emqxsl.com:8084/mqtt', options);
+
+    client.on('connect', function () {
+      if (window.AppInventor) {
+        AppInventor.setWebViewString("🟢 Έτοιμο! Πάτα για φαγητό Μανωλιό!");
+      }
+    });
+
+    client.on('error', function (err) {
+      if (window.AppInventor) {
+        AppInventor.setWebViewString("❌ Σφάλμα σύνδεσης");
+      }
+    });
+
+    function feedDanny() {
+      if (client.connected) {
+        client.publish('stepper/command', '12288', function(err) {
+          if (!err) {
+            if (window.AppInventor) AppInventor.setWebViewString("🍖 Σαλάμι τρώει Danny!");
+          } else {
+            if (window.AppInventor) AppInventor.setWebViewString("❌ Σφάλμα αποστολής");
+          }
+        });
+      } else {
+        if (window.AppInventor) AppInventor.setWebViewString("⏳ Περίμενε να συνδεθεί...");
+      }
+    }
+  </script>
+</body>
+</html>
